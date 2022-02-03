@@ -423,6 +423,12 @@ namespace BossKey
                                     this.Show();
                                     this.Activate();
                                     this.notifyIcon1.Visible = true;
+                                    if (!ShowInTaskbar)
+                                    {
+                                        UnRegisterShortcutKeyConfig();
+                                        this.ShowInTaskbar = true;
+                                        RegisterShortcutKeyConfig();
+                                    }
                                 }
                             }
                             btn_hiden_Click(null, null);
@@ -438,6 +444,12 @@ namespace BossKey
                                 this.Show();
                                 this.Activate();
                                 this.notifyIcon1.Visible = true;
+                                if (!ShowInTaskbar)
+                                {
+                                    UnRegisterShortcutKeyConfig();
+                                    this.ShowInTaskbar = true;
+                                    RegisterShortcutKeyConfig();
+                                }
                             }
                             break;
                     }
@@ -542,6 +554,12 @@ namespace BossKey
             Show();
             WindowState = FormWindowState.Normal;
             Activate();
+            if (!ShowInTaskbar)
+            {
+                UnRegisterShortcutKeyConfig();
+                this.ShowInTaskbar = true;
+                RegisterShortcutKeyConfig();
+            }
         }
 
         private void txt_bosskey_Enter(object sender, EventArgs e)
@@ -584,6 +602,12 @@ namespace BossKey
             Show();
             WindowState = FormWindowState.Normal;
             Activate();
+            if (!ShowInTaskbar)
+            {
+                UnRegisterShortcutKeyConfig();
+                this.ShowInTaskbar = true;
+                RegisterShortcutKeyConfig();
+            }
         }
 
         private void cb_autostart_CheckedChanged(object sender, EventArgs e)
