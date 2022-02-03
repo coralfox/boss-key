@@ -35,6 +35,13 @@
             this.btn_hiden = new System.Windows.Forms.Button();
             this.btn_save = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.nud_scanprocess_interval = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cb_scanprocess = new System.Windows.Forms.CheckBox();
+            this.cb_autohide = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cb_autostart = new System.Windows.Forms.CheckBox();
             this.btn_refresh = new System.Windows.Forms.Button();
             this.cb_bosskey = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -51,6 +58,9 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.menu_exit = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_scanprocess_interval)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -58,31 +68,28 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(287, 11);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Location = new System.Drawing.Point(215, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(52, 15);
+            this.label1.Size = new System.Drawing.Size(41, 12);
             this.label1.TabIndex = 2;
             this.label1.Text = "老板键";
             // 
             // txt_bosskey
             // 
             this.txt_bosskey.BackColor = System.Drawing.Color.White;
-            this.txt_bosskey.Location = new System.Drawing.Point(349, 8);
-            this.txt_bosskey.Margin = new System.Windows.Forms.Padding(4);
+            this.txt_bosskey.Location = new System.Drawing.Point(262, 6);
             this.txt_bosskey.Name = "txt_bosskey";
             this.txt_bosskey.ReadOnly = true;
-            this.txt_bosskey.Size = new System.Drawing.Size(147, 25);
+            this.txt_bosskey.Size = new System.Drawing.Size(111, 21);
             this.txt_bosskey.TabIndex = 2;
             this.txt_bosskey.Enter += new System.EventHandler(this.txt_bosskey_Enter);
             this.txt_bosskey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_bosskey_KeyDown);
             // 
             // btn_hiden
             // 
-            this.btn_hiden.Location = new System.Drawing.Point(407, 76);
-            this.btn_hiden.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_hiden.Location = new System.Drawing.Point(305, 61);
             this.btn_hiden.Name = "btn_hiden";
-            this.btn_hiden.Size = new System.Drawing.Size(160, 41);
+            this.btn_hiden.Size = new System.Drawing.Size(120, 33);
             this.btn_hiden.TabIndex = 6;
             this.btn_hiden.Text = "隐藏/显示（测试）";
             this.btn_hiden.UseVisualStyleBackColor = true;
@@ -90,10 +97,9 @@
             // 
             // btn_save
             // 
-            this.btn_save.Location = new System.Drawing.Point(281, 76);
-            this.btn_save.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_save.Location = new System.Drawing.Point(211, 61);
             this.btn_save.Name = "btn_save";
-            this.btn_save.Size = new System.Drawing.Size(117, 41);
+            this.btn_save.Size = new System.Drawing.Size(88, 33);
             this.btn_save.TabIndex = 5;
             this.btn_save.Text = "保存";
             this.btn_save.UseVisualStyleBackColor = true;
@@ -101,6 +107,9 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.groupBox3);
+            this.panel1.Controls.Add(this.cb_autohide);
+            this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.btn_refresh);
             this.panel1.Controls.Add(this.cb_bosskey);
             this.panel1.Controls.Add(this.label2);
@@ -110,18 +119,101 @@
             this.panel1.Controls.Add(this.btn_hiden);
             this.panel1.Controls.Add(this.txt_bosskey);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 430);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4);
+            this.panel1.Location = new System.Drawing.Point(0, 422);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(976, 132);
+            this.panel1.Size = new System.Drawing.Size(938, 106);
             this.panel1.TabIndex = 6;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.nud_scanprocess_interval);
+            this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Controls.Add(this.cb_scanprocess);
+            this.groupBox3.Location = new System.Drawing.Point(672, 6);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(243, 88);
+            this.groupBox3.TabIndex = 8;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "自动隐藏";
+            // 
+            // nud_scanprocess_interval
+            // 
+            this.nud_scanprocess_interval.Location = new System.Drawing.Point(137, 35);
+            this.nud_scanprocess_interval.Maximum = new decimal(new int[] {
+            3600000,
+            0,
+            0,
+            0});
+            this.nud_scanprocess_interval.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nud_scanprocess_interval.Name = "nud_scanprocess_interval";
+            this.nud_scanprocess_interval.Size = new System.Drawing.Size(97, 21);
+            this.nud_scanprocess_interval.TabIndex = 2;
+            this.nud_scanprocess_interval.Value = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 39);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(125, 12);
+            this.label3.TabIndex = 1;
+            this.label3.Text = "进程扫描时间（毫秒）";
+            // 
+            // cb_scanprocess
+            // 
+            this.cb_scanprocess.AutoSize = true;
+            this.cb_scanprocess.Location = new System.Drawing.Point(6, 16);
+            this.cb_scanprocess.Name = "cb_scanprocess";
+            this.cb_scanprocess.Size = new System.Drawing.Size(228, 16);
+            this.cb_scanprocess.TabIndex = 0;
+            this.cb_scanprocess.Text = "开启隐藏后，自动隐藏同名新启动进程";
+            this.cb_scanprocess.UseVisualStyleBackColor = true;
+            // 
+            // cb_autohide
+            // 
+            this.cb_autohide.AutoSize = true;
+            this.cb_autohide.Enabled = false;
+            this.cb_autohide.Location = new System.Drawing.Point(477, 44);
+            this.cb_autohide.Name = "cb_autohide";
+            this.cb_autohide.Size = new System.Drawing.Size(180, 16);
+            this.cb_autohide.TabIndex = 1;
+            this.cb_autohide.Text = "启动后自动隐藏进程及本程序";
+            this.cb_autohide.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.cb_autostart);
+            this.groupBox2.Location = new System.Drawing.Point(471, 2);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(195, 92);
+            this.groupBox2.TabIndex = 7;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "系统启动选项";
+            // 
+            // cb_autostart
+            // 
+            this.cb_autostart.AutoSize = true;
+            this.cb_autostart.Location = new System.Drawing.Point(6, 20);
+            this.cb_autostart.Name = "cb_autostart";
+            this.cb_autostart.Size = new System.Drawing.Size(132, 16);
+            this.cb_autostart.TabIndex = 0;
+            this.cb_autostart.Text = "随操作系统自动启动";
+            this.cb_autostart.UseVisualStyleBackColor = true;
+            this.cb_autostart.CheckedChanged += new System.EventHandler(this.cb_autostart_CheckedChanged);
             // 
             // btn_refresh
             // 
-            this.btn_refresh.Location = new System.Drawing.Point(4, 4);
-            this.btn_refresh.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_refresh.Location = new System.Drawing.Point(3, 3);
             this.btn_refresh.Name = "btn_refresh";
-            this.btn_refresh.Size = new System.Drawing.Size(117, 41);
+            this.btn_refresh.Size = new System.Drawing.Size(88, 33);
             this.btn_refresh.TabIndex = 1;
             this.btn_refresh.Text = "刷新进程列表";
             this.btn_refresh.UseVisualStyleBackColor = true;
@@ -130,10 +222,9 @@
             // cb_bosskey
             // 
             this.cb_bosskey.AutoSize = true;
-            this.cb_bosskey.Location = new System.Drawing.Point(524, 44);
-            this.cb_bosskey.Margin = new System.Windows.Forms.Padding(4);
+            this.cb_bosskey.Location = new System.Drawing.Point(393, 35);
             this.cb_bosskey.Name = "cb_bosskey";
-            this.cb_bosskey.Size = new System.Drawing.Size(89, 19);
+            this.cb_bosskey.Size = new System.Drawing.Size(72, 16);
             this.cb_bosskey.TabIndex = 4;
             this.cb_bosskey.Text = "同老板键";
             this.cb_bosskey.UseVisualStyleBackColor = true;
@@ -142,21 +233,19 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(193, 46);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(145, 37);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(142, 15);
+            this.label2.Size = new System.Drawing.Size(113, 12);
             this.label2.TabIndex = 6;
             this.label2.Text = "程序本身隐藏快捷键";
             // 
             // txt_appkey
             // 
             this.txt_appkey.BackColor = System.Drawing.Color.White;
-            this.txt_appkey.Location = new System.Drawing.Point(349, 41);
-            this.txt_appkey.Margin = new System.Windows.Forms.Padding(4);
+            this.txt_appkey.Location = new System.Drawing.Point(262, 33);
             this.txt_appkey.Name = "txt_appkey";
             this.txt_appkey.ReadOnly = true;
-            this.txt_appkey.Size = new System.Drawing.Size(147, 25);
+            this.txt_appkey.Size = new System.Drawing.Size(111, 21);
             this.txt_appkey.TabIndex = 3;
             this.txt_appkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_bosskey_KeyDown);
             // 
@@ -165,10 +254,8 @@
             this.groupBox1.Controls.Add(this.list_process);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(976, 430);
+            this.groupBox1.Size = new System.Drawing.Size(938, 422);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "进程列表";
@@ -184,9 +271,10 @@
             this.list_process.FullRowSelect = true;
             this.list_process.GridLines = true;
             this.list_process.HideSelection = false;
-            this.list_process.Location = new System.Drawing.Point(4, 22);
+            this.list_process.Location = new System.Drawing.Point(3, 17);
+            this.list_process.Margin = new System.Windows.Forms.Padding(2);
             this.list_process.Name = "list_process";
-            this.list_process.Size = new System.Drawing.Size(968, 404);
+            this.list_process.Size = new System.Drawing.Size(932, 402);
             this.list_process.SmallImageList = this.imageList1;
             this.list_process.TabIndex = 7;
             this.list_process.UseCompatibleStateImageBehavior = false;
@@ -230,36 +318,35 @@
             this.toolStripMenuItem1,
             this.menu_exit});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(154, 58);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 54);
             // 
             // menu_show
             // 
             this.menu_show.Name = "menu_show";
-            this.menu_show.Size = new System.Drawing.Size(153, 24);
+            this.menu_show.Size = new System.Drawing.Size(136, 22);
             this.menu_show.Text = "显示主屏幕";
             this.menu_show.Click += new System.EventHandler(this.menu_show_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(150, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(133, 6);
             // 
             // menu_exit
             // 
             this.menu_exit.Name = "menu_exit";
-            this.menu_exit.Size = new System.Drawing.Size(153, 24);
+            this.menu_exit.Size = new System.Drawing.Size(136, 22);
             this.menu_exit.Text = "退出";
             this.menu_exit.Click += new System.EventHandler(this.menu_exit_Click);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(976, 562);
+            this.ClientSize = new System.Drawing.Size(938, 528);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "老板来了[吾爱破解]";
@@ -268,6 +355,11 @@
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_scanprocess_interval)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -295,6 +387,13 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.NumericUpDown nud_scanprocess_interval;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox cb_scanprocess;
+        private System.Windows.Forms.CheckBox cb_autohide;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.CheckBox cb_autostart;
     }
 }
 

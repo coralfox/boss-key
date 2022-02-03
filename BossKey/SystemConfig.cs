@@ -7,6 +7,9 @@ namespace BossKey
         public List<string> AppPaths;
         public string ShortcutKey_Boss;
         public string ShortcutKey_App;
-
+        public bool AutoStart;
+        public bool AutoHide;
+        public bool ScanPorcess;
+        public int ScanProcessInterval;
     }
 }

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -72,11 +74,13 @@ namespace BossKey
             return imageList1.Images.Count - 1;
         }
 
-
-        public MainForm()
+        private bool AutoStart = false;
+        private bool AutoHide = false;
+        public MainForm(string[] args)
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+            if (args.ToList().Contains("AutoStart")) AutoStart = true;
         }
 
 
@@ -108,6 +112,11 @@ namespace BossKey
                     }
                 }
                 list_process.EndUpdate();
+
+                if (AutoHide)
+                {
+                    btn_hiden_Click(null, null);
+                }
 
             }).Start();
         }
@@ -150,6 +159,9 @@ namespace BossKey
         List<int> process_id = new List<int>();
         List<IntPtr> phandle = new List<IntPtr>();
         bool isshow = true;
+
+        CancellationTokenSource tokenSource;
+
         private void btn_hiden_Click(object sender, EventArgs e)
         {
 
@@ -157,7 +169,6 @@ namespace BossKey
             {
                 phandle.Clear();
                 process_id.Clear();
-                Process[] processes = Process.GetProcesses();
 
                 for (var i = 0; i < process.Count; i++)
                 {
@@ -188,9 +199,66 @@ namespace BossKey
                 }
                 NotifyIconHide.SetNotifyIconVisiable(process, false);
                 isshow = false;
+
+                if (Config.ScanPorcess)
+                {
+                    tokenSource = new CancellationTokenSource();
+                    CancellationToken token = tokenSource.Token;
+                    new Task(async () =>
+                    {
+                        List<int> _process_id = new List<int>();
+                        while (true)
+                        {
+                            if (token.IsCancellationRequested)
+                            {
+                                return;
+                            }
+                            _process_id.Clear();
+                            for (var i = 0; i < process.Count; i++)
+                            {
+                                var pname = process[i];
+                                pname = pname.Substring(pname.LastIndexOf('\\') + 1);
+                                pname = pname.Substring(0, pname.LastIndexOf("."));
+                                Process[] ps = Process.GetProcessesByName(pname);
+                                foreach (var p in ps)
+                                {
+                                    try
+                                    {
+                                        if (p.MainModule.FileName == process[i]) _process_id.Add(p.Id);
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+                            }
+                            foreach (var id in _process_id)
+                            {
+                                EnumWindows(EnumWindowCallBack, id);
+                            }
+
+                            foreach (var h in phandle)
+                            {
+                                ShowWindow(h, 0);
+                            }
+                            NotifyIconHide.SetNotifyIconVisiable(process, false);
+
+
+
+                            await Task.Delay(Config.ScanProcessInterval);
+                        }
+
+                    }, token).Start();
+                }
+
+
             }
             else
             {
+                if (Config.ScanPorcess)
+                {
+                    tokenSource.Cancel();
+                }
                 foreach (var h in phandle)
                 {
                     ShowWindow(h, 1);
@@ -204,6 +272,33 @@ namespace BossKey
 
         private void btn_save_Click(object sender, EventArgs e)
         {
+
+            try
+            {
+                if (cb_autostart.Checked == true)
+                {
+                    RegistryKey R_local = Registry.CurrentUser;//RegistryKey R_local = Registry.CurrentUser;
+                    RegistryKey R_run = R_local.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
+                    R_run.SetValue("BossKey", Application.ExecutablePath + " AutoStart");
+                    R_run.Close();
+                    R_local.Close();
+                }
+                else
+                {
+                    RegistryKey R_local = Registry.CurrentUser;//RegistryKey R_local = Registry.CurrentUser;
+                    RegistryKey R_run = R_local.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
+                    R_run.DeleteValue("BossKey", false);
+                    R_run.Close();
+                    R_local.Close();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("您需要管理员权限修改", "提示");
+                return;
+            }
+
+
             process.Clear();
 
             for (var i = 0; i < list_process.CheckedItems.Count; i++)
@@ -214,9 +309,14 @@ namespace BossKey
                 }
             }
             Config.AppPaths = process;
+            Config.AutoStart = cb_autostart.Checked;
+            Config.AutoHide = cb_autohide.Checked;
+            Config.ScanPorcess = cb_scanprocess.Checked;
+            Config.ScanProcessInterval = (int)nud_scanprocess_interval.Value;
             SaveShortcutKeyConfig(txt_bosskey.Text, cb_bosskey.Checked ? txt_bosskey.Text : txt_appkey.Text);
             UnRegisterShortcutKeyConfig();
             RegisterShortcutKeyConfig();
+
         }
 
 
@@ -388,9 +488,31 @@ namespace BossKey
                 _shortcutkey_boss = Config.ShortcutKey_Boss;
                 cb_bosskey.Checked = txt_appkey.Text == txt_bosskey.Text;
                 process = Config.AppPaths;
+                cb_autostart.Checked = Config.AutoStart;
+                cb_autohide.Checked = Config.AutoHide;
+                cb_scanprocess.Checked = Config.ScanPorcess;
+                nud_scanprocess_interval.Value = Config.ScanProcessInterval == 0 ? 1000 : Config.ScanProcessInterval;
+
+                AutoHide = AutoStart && Config.AutoHide;//自动启动且自动隐藏
+
+                if (AutoHide || AutoStart)
+                {
+                    this.Visible = false;
+                    this.ShowInTaskbar = false;
+                }
+                if (AutoHide)
+                {
+                    this.Hide();
+                    this.notifyIcon1.Visible = false;
+                }
+                else if (AutoStart)
+                {
+                    this.Hide();
+                }
                 RegisterShortcutKeyConfig();
             }
             GetALLProcesses();
+
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -462,6 +584,11 @@ namespace BossKey
             Show();
             WindowState = FormWindowState.Normal;
             Activate();
+        }
+
+        private void cb_autostart_CheckedChanged(object sender, EventArgs e)
+        {
+            cb_autohide.Enabled = cb_autostart.Checked;
         }
     }
 
