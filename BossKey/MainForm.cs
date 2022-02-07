@@ -76,6 +76,7 @@ namespace BossKey
 
         private bool AutoStart = false;
         private bool AutoHide = false;
+        private GlobalHook hook;
         public MainForm(string[] args)
         {
             InitializeComponent();
@@ -242,9 +243,6 @@ namespace BossKey
                                 ShowWindow(h, 0);
                             }
                             NotifyIconHide.SetNotifyIconVisiable(process, false);
-
-
-
                             await Task.Delay(Config.ScanProcessInterval);
                         }
 
@@ -266,8 +264,6 @@ namespace BossKey
                 NotifyIconHide.SetNotifyIconVisiable(process, true);
                 isshow = true;
             }
-
-
         }
 
         private void btn_save_Click(object sender, EventArgs e)
@@ -294,7 +290,7 @@ namespace BossKey
             }
             catch (Exception)
             {
-                MessageBox.Show("您需要管理员权限修改", "提示");
+                MessageBox.Show("您需要管理员权限方能修改系统启动项！", "提示");
                 return;
             }
 
@@ -344,7 +340,8 @@ namespace BossKey
             {
                 try
                 {
-                    HotKey.RegisterHotKey(Handle, KeyId, (keys[0] == "1" ? HotKey.KeyModifiers.Alt : HotKey.KeyModifiers.None) | (keys[1] == "1" ? HotKey.KeyModifiers.Ctrl : HotKey.KeyModifiers.None) | (keys[2] == "1" ? HotKey.KeyModifiers.Shift : HotKey.KeyModifiers.None), (Keys)Enum.Parse(typeof(Keys), keys[3]));
+                    if (keys[3].IndexOf("Mouse") == -1)
+                        HotKey.RegisterHotKey(Handle, KeyId, (keys[0] == "1" ? HotKey.KeyModifiers.Alt : HotKey.KeyModifiers.None) | (keys[1] == "1" ? HotKey.KeyModifiers.Ctrl : HotKey.KeyModifiers.None) | (keys[2] == "1" ? HotKey.KeyModifiers.Shift : HotKey.KeyModifiers.None), (Keys)Enum.Parse(typeof(Keys), keys[3]));
                 }
                 catch
                 {
@@ -488,6 +485,21 @@ namespace BossKey
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+
+            if (hook == null)
+            {
+                hook = new GlobalHook();
+                //hook.KeyDown += new KeyEventHandler(hook_KeyDown);
+                //hook.KeyPress += new KeyPressEventHandler(hook_KeyPress);
+                //hook.KeyUp += new KeyEventHandler(hook_KeyUp);
+                hook.OnMouseActivity += Hook_OnMouseActivity;
+            }
+            if (!hook.Start())
+            {
+                MessageBox.Show("您需要管理员权限方能启动鼠标快捷键！", "提示");
+            }
+
+
             Config.AppPaths = new List<string>();
             if (File.Exists(Application.StartupPath + "\\BossKey.config"))
             {
@@ -527,12 +539,63 @@ namespace BossKey
 
         }
 
+        private void Hook_OnMouseActivity(object sender, MouseEventArgs e)
+        {
+            if (Config.ShortcutKey_Boss == $"Mouse{e.Button.ToString()}")
+            {
+                if (Config.ShortcutKey_App == Config.ShortcutKey_Boss)
+                {
+                    if (this.Visible)
+                    {
+                        this.Hide();
+                        this.notifyIcon1.Visible = false;
+                    }
+                    else
+                    {
+                        this.Show();
+                        this.Activate();
+                        this.notifyIcon1.Visible = true;
+                        if (!ShowInTaskbar)
+                        {
+                            UnRegisterShortcutKeyConfig();
+                            this.ShowInTaskbar = true;
+                            RegisterShortcutKeyConfig();
+                        }
+                    }
+                }
+                btn_hiden_Click(null, null);
+            }
+            if (Config.ShortcutKey_App != Config.ShortcutKey_Boss && Config.ShortcutKey_App == $"Mouse{e.Button.ToString()}")
+            {
+
+                if (this.Visible)
+                {
+                    this.Hide();
+                    this.notifyIcon1.Visible = false;
+                }
+                else
+                {
+                    this.Show();
+                    this.Activate();
+                    this.notifyIcon1.Visible = true;
+                    if (!ShowInTaskbar)
+                    {
+                        UnRegisterShortcutKeyConfig();
+                        this.ShowInTaskbar = true;
+                        RegisterShortcutKeyConfig();
+                    }
+                }
+
+            }
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!isshow)
             {
                 btn_hiden_Click(null, null);
             }
+            hook.Stop();
             UnRegisterShortcutKeyConfig();
         }
 
@@ -613,6 +676,16 @@ namespace BossKey
         private void cb_autostart_CheckedChanged(object sender, EventArgs e)
         {
             cb_autohide.Enabled = cb_autostart.Checked;
+        }
+
+        private void txt_bosskey_MouseDown(object sender, MouseEventArgs e)
+        {
+            var obj = (TextBox)sender;
+            //obj.Text = "";
+            if (e.Button == MouseButtons.Middle)
+            {
+                obj.Text = $"Mouse{e.Button.ToString()}";
+            }
         }
     }
 

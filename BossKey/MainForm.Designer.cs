@@ -84,6 +84,7 @@
             this.txt_bosskey.TabIndex = 2;
             this.txt_bosskey.Enter += new System.EventHandler(this.txt_bosskey_Enter);
             this.txt_bosskey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_bosskey_KeyDown);
+            this.txt_bosskey.MouseDown += new System.Windows.Forms.MouseEventHandler(this.txt_bosskey_MouseDown);
             // 
             // btn_hiden
             // 
@@ -248,6 +249,7 @@
             this.txt_appkey.Size = new System.Drawing.Size(111, 21);
             this.txt_appkey.TabIndex = 3;
             this.txt_appkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_bosskey_KeyDown);
+            this.txt_appkey.MouseDown += new System.Windows.Forms.MouseEventHandler(this.txt_bosskey_MouseDown);
             // 
             // groupBox1
             // 

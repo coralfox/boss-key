@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalHook.cs" />
     <Compile Include="HotKey.cs" />
     <Compile Include="ListViewColumnSorter.cs" />
     <Compile Include="NotifyIconHide.cs" />
