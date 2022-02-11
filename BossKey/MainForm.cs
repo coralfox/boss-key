@@ -165,104 +165,110 @@ namespace BossKey
 
         private void btn_hiden_Click(object sender, EventArgs e)
         {
-
-            if (isshow)
+            try
             {
-                phandle.Clear();
-                process_id.Clear();
-
-                for (var i = 0; i < process.Count; i++)
+                if (isshow)
                 {
-                    var pname = process[i];
-                    pname = pname.Substring(pname.LastIndexOf('\\') + 1);
-                    pname = pname.Substring(0, pname.LastIndexOf("."));
-                    Process[] ps = Process.GetProcessesByName(pname);
-                    foreach (var p in ps)
-                    {
-                        try
-                        {
-                            if (p.MainModule.FileName == process[i]) process_id.Add(p.Id);
-                        }
-                        catch
-                        {
+                    phandle.Clear();
+                    process_id.Clear();
 
+                    for (var i = 0; i < process.Count; i++)
+                    {
+                        var pname = process[i];
+                        pname = pname.Substring(pname.LastIndexOf('\\') + 1);
+                        pname = pname.Substring(0, pname.LastIndexOf("."));
+                        Process[] ps = Process.GetProcessesByName(pname);
+                        foreach (var p in ps)
+                        {
+                            try
+                            {
+                                if (p.MainModule.FileName == process[i]) process_id.Add(p.Id);
+                            }
+                            catch
+                            {
+
+                            }
                         }
                     }
-                }
-                foreach (var id in process_id)
-                {
-                    EnumWindows(EnumWindowCallBack, id);
-                }
-
-                foreach (var h in phandle)
-                {
-                    ShowWindow(h, 0);
-                }
-                NotifyIconHide.SetNotifyIconVisiable(process, false);
-                isshow = false;
-
-                if (Config.ScanPorcess)
-                {
-                    tokenSource = new CancellationTokenSource();
-                    CancellationToken token = tokenSource.Token;
-                    new Task(async () =>
+                    foreach (var id in process_id)
                     {
-                        List<int> _process_id = new List<int>();
-                        while (true)
-                        {
-                            if (token.IsCancellationRequested)
-                            {
-                                return;
-                            }
-                            _process_id.Clear();
-                            for (var i = 0; i < process.Count; i++)
-                            {
-                                var pname = process[i];
-                                pname = pname.Substring(pname.LastIndexOf('\\') + 1);
-                                pname = pname.Substring(0, pname.LastIndexOf("."));
-                                Process[] ps = Process.GetProcessesByName(pname);
-                                foreach (var p in ps)
-                                {
-                                    try
-                                    {
-                                        if (p.MainModule.FileName == process[i]) _process_id.Add(p.Id);
-                                    }
-                                    catch
-                                    {
+                        EnumWindows(EnumWindowCallBack, id);
+                    }
 
+                    foreach (var h in phandle)
+                    {
+                        ShowWindow(h, 0);
+                    }
+                    NotifyIconHide.SetNotifyIconVisiable(process, false);
+                    isshow = false;
+
+                    if (Config.ScanPorcess)
+                    {
+                        tokenSource = new CancellationTokenSource();
+                        CancellationToken token = tokenSource.Token;
+                        new Task(async () =>
+                        {
+                            List<int> _process_id = new List<int>();
+                            while (true)
+                            {
+                                if (token.IsCancellationRequested)
+                                {
+                                    return;
+                                }
+                                _process_id.Clear();
+                                for (var i = 0; i < process.Count; i++)
+                                {
+                                    var pname = process[i];
+                                    pname = pname.Substring(pname.LastIndexOf('\\') + 1);
+                                    pname = pname.Substring(0, pname.LastIndexOf("."));
+                                    Process[] ps = Process.GetProcessesByName(pname);
+                                    foreach (var p in ps)
+                                    {
+                                        try
+                                        {
+                                            if (p.MainModule.FileName == process[i]) _process_id.Add(p.Id);
+                                        }
+                                        catch
+                                        {
+
+                                        }
                                     }
                                 }
-                            }
-                            foreach (var id in _process_id)
-                            {
-                                EnumWindows(EnumWindowCallBack, id);
+                                foreach (var id in _process_id)
+                                {
+                                    EnumWindows(EnumWindowCallBack, id);
+                                }
+
+                                foreach (var h in phandle)
+                                {
+                                    ShowWindow(h, 0);
+                                }
+                                NotifyIconHide.SetNotifyIconVisiable(process, false);
+                                await Task.Delay(Config.ScanProcessInterval);
                             }
 
-                            foreach (var h in phandle)
-                            {
-                                ShowWindow(h, 0);
-                            }
-                            NotifyIconHide.SetNotifyIconVisiable(process, false);
-                            await Task.Delay(Config.ScanProcessInterval);
-                        }
+                        }, token).Start();
+                    }
 
-                    }, token).Start();
+
                 }
-
-
+                else
+                {
+                    if (Config.ScanPorcess)
+                    {
+                        tokenSource.Cancel();
+                    }
+                    foreach (var h in phandle)
+                    {
+                        ShowWindow(h, 1);
+                    }
+                    NotifyIconHide.SetNotifyIconVisiable(process, true);
+                    isshow = true;
+                }
             }
-            else
+            catch
             {
-                if (Config.ScanPorcess)
-                {
-                    tokenSource.Cancel();
-                }
-                foreach (var h in phandle)
-                {
-                    ShowWindow(h, 1);
-                }
-                NotifyIconHide.SetNotifyIconVisiable(process, true);
-                isshow = true;
+
             }
         }
 

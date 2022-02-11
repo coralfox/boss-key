@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace BossKey
 {
@@ -198,7 +197,7 @@ namespace BossKey
             var is64OS = Environment.Is64BitOperatingSystem;
             try
             {
-                
+
 
                 IntPtr pid = IntPtr.Zero;
                 IntPtr ipHandle = IntPtr.Zero; //图标句柄
@@ -219,7 +218,7 @@ namespace BossKey
                     for (int i = 0; i < lButton; i++)
                     {
                         SendMessage(ipTray, TB_GETBUTTON, i, lAddress);
-                        
+
 
                         //读文本地址
                         ReadProcessMemory(hProcess, lAddress + 16, ref lTextAdr, 4, 0);
@@ -246,10 +245,10 @@ namespace BossKey
                                 {
                                     var tb = new TBBUTTON();
 
-                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(tb));
+                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TBBUTTON)));
 
                                     Marshal.StructureToPtr(tb, ptb, true);
-                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(tb), ref vNumberOfBytesRead);
+                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(typeof(TBBUTTON)), ref vNumberOfBytesRead);
                                     tb = (TBBUTTON)Marshal.PtrToStructure(ptb, typeof(TBBUTTON));
                                     Marshal.FreeHGlobal(ptb);
                                     dwData = tb.dwData;
@@ -257,10 +256,10 @@ namespace BossKey
                                 else
                                 {
                                     var tb = new TBBUTTON32();
-                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(tb));
+                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TBBUTTON32)));
 
                                     Marshal.StructureToPtr(tb, ptb, true);
-                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(tb), ref vNumberOfBytesRead);
+                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(typeof(TBBUTTON32)), ref vNumberOfBytesRead);
                                     tb = (TBBUTTON32)Marshal.PtrToStructure(ptb, typeof(TBBUTTON32));
                                     Marshal.FreeHGlobal(ptb);
                                     dwData = tb.dwData;
@@ -268,16 +267,16 @@ namespace BossKey
 
                                 TRAYDATA trayData = new TRAYDATA();
 
-                                IntPtr ptrayData = Marshal.AllocHGlobal(Marshal.SizeOf(trayData));
+                                IntPtr ptrayData = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TRAYDATA)));
 
                                 Marshal.StructureToPtr(trayData, ptrayData, true);
-                                
-                                ReadProcessMemoryEx(hProcess, (IntPtr)dwData, ptrayData, Marshal.SizeOf(trayData), ref vNumberOfBytesRead);
+
+                                ReadProcessMemoryEx(hProcess, (IntPtr)dwData, ptrayData, Marshal.SizeOf(typeof(TRAYDATA)), ref vNumberOfBytesRead);
                                 trayData = (TRAYDATA)Marshal.PtrToStructure(ptrayData, typeof(TRAYDATA));
                                 Marshal.FreeHGlobal(ptrayData);
                                 NotifyIconData nid = new NotifyIconData();
 
-                                nid.cbSize = Marshal.SizeOf(nid);
+                                nid.cbSize = Marshal.SizeOf(typeof(NotifyIconData));
                                 nid.hWnd = trayData.hwnd;
                                 nid.uID = (int)trayData.uID;
                                 nid.uFlags = NotifyFlags.State;
@@ -360,10 +359,10 @@ namespace BossKey
                                 {
                                     var tb = new TBBUTTON();
 
-                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(tb));
+                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TBBUTTON)));
 
                                     Marshal.StructureToPtr(tb, ptb, true);
-                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(tb), ref vNumberOfBytesRead);
+                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(typeof(TBBUTTON)), ref vNumberOfBytesRead);
                                     tb = (TBBUTTON)Marshal.PtrToStructure(ptb, typeof(TBBUTTON));
                                     Marshal.FreeHGlobal(ptb);
                                     dwData = tb.dwData;
@@ -371,10 +370,10 @@ namespace BossKey
                                 else
                                 {
                                     var tb = new TBBUTTON32();
-                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(tb));
+                                    IntPtr ptb = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TBBUTTON32)));
 
                                     Marshal.StructureToPtr(tb, ptb, true);
-                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(tb), ref vNumberOfBytesRead);
+                                    ReadProcessMemoryEx(hProcess, lAddress, ptb, Marshal.SizeOf(typeof(TBBUTTON32)), ref vNumberOfBytesRead);
                                     tb = (TBBUTTON32)Marshal.PtrToStructure(ptb, typeof(TBBUTTON32));
                                     Marshal.FreeHGlobal(ptb);
                                     dwData = tb.dwData;
@@ -382,16 +381,16 @@ namespace BossKey
 
                                 TRAYDATA trayData = new TRAYDATA();
 
-                                IntPtr ptrayData = Marshal.AllocHGlobal(Marshal.SizeOf(trayData));
+                                IntPtr ptrayData = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TRAYDATA)));
 
                                 Marshal.StructureToPtr(trayData, ptrayData, true);
 
-                                ReadProcessMemoryEx(hProcess, (IntPtr)dwData, ptrayData, Marshal.SizeOf(trayData), ref vNumberOfBytesRead);
+                                ReadProcessMemoryEx(hProcess, (IntPtr)dwData, ptrayData, Marshal.SizeOf(typeof(TRAYDATA)), ref vNumberOfBytesRead);
                                 trayData = (TRAYDATA)Marshal.PtrToStructure(ptrayData, typeof(TRAYDATA));
                                 Marshal.FreeHGlobal(ptrayData);
                                 NotifyIconData nid = new NotifyIconData();
 
-                                nid.cbSize = Marshal.SizeOf(nid);
+                                nid.cbSize = Marshal.SizeOf(typeof(NotifyIconData));
                                 nid.hWnd = trayData.hwnd;
                                 nid.uID = (int)trayData.uID;
                                 nid.uFlags = NotifyFlags.State;
