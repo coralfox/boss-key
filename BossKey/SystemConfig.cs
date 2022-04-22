@@ -11,5 +11,13 @@ namespace BossKey
         public bool AutoHide;
         public bool ScanPorcess;
         public int ScanProcessInterval;
+        public bool Mute;
+        public bool OpenFile;
+        public string OpenFilePath;
+        public bool EnablePassword;
+        public string Password;
+        public bool EnableHook;
+        public bool IdleHiden;
+        public int IdleTime;
     }
 }

@@ -35,6 +35,43 @@ namespace BossKey
         [DllImport("user32.dll")]
         public static extern int EnumChildWindows(IntPtr hWndParent, CallBack lpfn, int lParam);
 
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, uint wParam, uint lParam);
+        const uint WM_APPCOMMAND = 0x319;
+        const uint APPCOMMAND_VOLUME_UP = 0x0a;
+        const uint APPCOMMAND_VOLUME_DOWN = 0x09;
+        const uint APPCOMMAND_VOLUME_MUTE = 0x08;
+
+
+        // 创建结构体用于返回捕获时间
+        [StructLayout(LayoutKind.Sequential)]
+        struct LASTINPUTINFO
+        {
+            // 设置结构体块容量
+            [MarshalAs(UnmanagedType.U4)]
+            public int cbSize;
+            // 捕获的时间
+            [MarshalAs(UnmanagedType.U4)]
+            public uint dwTime;
+        }
+        [DllImport("user32.dll")]
+        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+        // 获取键盘和鼠标没有操作的时间
+        private static long GetLastInputTime()
+        {
+            LASTINPUTINFO vLastInputInfo = new LASTINPUTINFO();
+            vLastInputInfo.cbSize = Marshal.SizeOf(vLastInputInfo);
+            // 捕获时间
+            if (!GetLastInputInfo(ref vLastInputInfo))
+                return 0;
+            else
+                return Environment.TickCount - vLastInputInfo.dwTime;
+        }
+
+
+
+
         public delegate bool CallBack(IntPtr hwnd, int lParam);
 
         bool EnumChildWindowCallBack(IntPtr hWnd, int lParam)
@@ -82,6 +119,8 @@ namespace BossKey
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
             if (args.ToList().Contains("AutoStart")) AutoStart = true;
+            tokenSource = new CancellationTokenSource();
+            token = tokenSource.Token;
         }
 
 
@@ -161,8 +200,11 @@ namespace BossKey
         List<IntPtr> phandle = new List<IntPtr>();
         bool isshow = true;
 
-        CancellationTokenSource tokenSource;
 
+
+
+        CancellationTokenSource tokenSource;
+        CancellationToken token;
         private void btn_hiden_Click(object sender, EventArgs e)
         {
             try
@@ -200,69 +242,41 @@ namespace BossKey
                         ShowWindow(h, 0);
                     }
                     NotifyIconHide.SetNotifyIconVisiable(process, false);
+                    if (Config.Mute)
+                    {
+                        SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_MUTE * 0x10000);
+                        for (var i = 0; i < 50; i++)
+                        {
+                            SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_DOWN * 0x10000);
+                        }
+                    }
+                    if (Config.OpenFile)
+                    {
+                        Process.Start(Config.OpenFilePath);
+                    }
+
                     isshow = false;
 
-                    if (Config.ScanPorcess)
-                    {
-                        tokenSource = new CancellationTokenSource();
-                        CancellationToken token = tokenSource.Token;
-                        new Task(async () =>
-                        {
-                            List<int> _process_id = new List<int>();
-                            while (true)
-                            {
-                                if (token.IsCancellationRequested)
-                                {
-                                    return;
-                                }
-                                _process_id.Clear();
-                                for (var i = 0; i < process.Count; i++)
-                                {
-                                    var pname = process[i];
-                                    pname = pname.Substring(pname.LastIndexOf('\\') + 1);
-                                    pname = pname.Substring(0, pname.LastIndexOf("."));
-                                    Process[] ps = Process.GetProcessesByName(pname);
-                                    foreach (var p in ps)
-                                    {
-                                        try
-                                        {
-                                            if (p.MainModule.FileName == process[i]) _process_id.Add(p.Id);
-                                        }
-                                        catch
-                                        {
 
-                                        }
-                                    }
-                                }
-                                foreach (var id in _process_id)
-                                {
-                                    EnumWindows(EnumWindowCallBack, id);
-                                }
-
-                                foreach (var h in phandle)
-                                {
-                                    ShowWindow(h, 0);
-                                }
-                                NotifyIconHide.SetNotifyIconVisiable(process, false);
-                                await Task.Delay(Config.ScanProcessInterval);
-                            }
-
-                        }, token).Start();
-                    }
 
 
                 }
                 else
                 {
-                    if (Config.ScanPorcess)
-                    {
-                        tokenSource.Cancel();
-                    }
+
                     foreach (var h in phandle)
                     {
                         ShowWindow(h, 1);
                     }
                     NotifyIconHide.SetNotifyIconVisiable(process, true);
+                    if (Config.Mute)
+                    {
+                        /*SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_MUTE * 0x10000);
+                        for (var i = 0; i < 50; i++)
+                        {
+                            SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_DOWN * 0x10000);
+                        }*/
+                    }
                     isshow = true;
                 }
             }
@@ -315,6 +329,13 @@ namespace BossKey
             Config.AutoHide = cb_autohide.Checked;
             Config.ScanPorcess = cb_scanprocess.Checked;
             Config.ScanProcessInterval = (int)nud_scanprocess_interval.Value;
+            Config.Mute = cb_mute.Checked;
+            Config.OpenFilePath = txt_filepath.Text;
+            Config.OpenFile = cb_openfile.Checked;
+            Config.EnablePassword = cb_password.Checked;
+            Config.EnableHook = cb_hook.Checked;
+            Config.IdleHiden = cb_idlehiden.Checked;
+            Config.IdleTime = (int)nud_idletime.Value;
             SaveShortcutKeyConfig(txt_bosskey.Text, cb_bosskey.Checked ? txt_bosskey.Text : txt_appkey.Text);
             UnRegisterShortcutKeyConfig();
             RegisterShortcutKeyConfig();
@@ -423,6 +444,23 @@ namespace BossKey
                                 }
                                 else
                                 {
+                                    if (Config.EnablePassword)
+                                    {
+                                        var _show = false;
+                                        PasswordForm pf = new PasswordForm();
+                                        if (pf.ShowDialog() == DialogResult.OK)
+                                        {
+                                            if (Password.encrypt(pf.Result) != Config.Password)
+                                            {
+                                                MessageBox.Show(this, "密码不正确！");
+                                            }
+                                            else
+                                            {
+                                                _show = true;
+                                            }
+                                        }
+                                        if (!_show) return;
+                                    }
                                     this.Show();
                                     this.Activate();
                                     this.notifyIcon1.Visible = true;
@@ -444,6 +482,23 @@ namespace BossKey
                             }
                             else
                             {
+                                if (Config.EnablePassword)
+                                {
+                                    var _show = false;
+                                    PasswordForm pf = new PasswordForm();
+                                    if (pf.ShowDialog() == DialogResult.OK)
+                                    {
+                                        if (Password.encrypt(pf.Result) != Config.Password)
+                                        {
+                                            MessageBox.Show(this, "密码不正确！");
+                                        }
+                                        else
+                                        {
+                                            _show = true;
+                                        }
+                                    }
+                                    if (!_show) return;
+                                }
                                 this.Show();
                                 this.Activate();
                                 this.notifyIcon1.Visible = true;
@@ -491,21 +546,7 @@ namespace BossKey
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
-            if (hook == null)
-            {
-                hook = new GlobalHook();
-                //hook.KeyDown += new KeyEventHandler(hook_KeyDown);
-                //hook.KeyPress += new KeyPressEventHandler(hook_KeyPress);
-                //hook.KeyUp += new KeyEventHandler(hook_KeyUp);
-                hook.OnMouseActivity += Hook_OnMouseActivity;
-            }
-            if (!hook.Start())
-            {
-                MessageBox.Show("您需要管理员权限方能启动鼠标快捷键！", "提示");
-            }
-
-
+            Password.cpuid = Password.GetCpuID();
             Config.AppPaths = new List<string>();
             if (File.Exists(Application.StartupPath + "\\BossKey.config"))
             {
@@ -522,6 +563,134 @@ namespace BossKey
                 cb_autohide.Checked = Config.AutoHide;
                 cb_scanprocess.Checked = Config.ScanPorcess;
                 nud_scanprocess_interval.Value = Config.ScanProcessInterval == 0 ? 1000 : Config.ScanProcessInterval;
+
+
+                cb_mute.Checked = Config.Mute;
+                txt_filepath.Text = Config.OpenFilePath;
+                cb_openfile.Checked = Config.OpenFile;
+                cb_password.Checked = Config.EnablePassword;
+                cb_hook.Checked = Config.EnableHook;
+
+                cb_idlehiden.Checked = Config.IdleHiden;
+                nud_idletime.Value = Config.IdleTime == 0 ? 60 : Config.IdleTime;
+
+                new Task(async () =>
+                {
+
+                    while (true)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        if (Config.IdleHiden)
+                        {
+                            if (GetLastInputTime() / 1000 >= Config.IdleTime)
+                            {
+
+                                this.Hide();
+                                this.notifyIcon1.Visible = false;
+                                phandle.Clear();
+                                process_id.Clear();
+
+                                for (var i = 0; i < process.Count; i++)
+                                {
+                                    var pname = process[i];
+                                    pname = pname.Substring(pname.LastIndexOf('\\') + 1);
+                                    pname = pname.Substring(0, pname.LastIndexOf("."));
+                                    Process[] ps = Process.GetProcessesByName(pname);
+                                    foreach (var p in ps)
+                                    {
+                                        try
+                                        {
+                                            if (p.MainModule.FileName == process[i]) process_id.Add(p.Id);
+                                        }
+                                        catch
+                                        {
+
+                                        }
+                                    }
+                                }
+                                foreach (var id in process_id)
+                                {
+                                    EnumWindows(EnumWindowCallBack, id);
+                                }
+
+                                foreach (var h in phandle)
+                                {
+                                    ShowWindow(h, 0);
+                                }
+                                NotifyIconHide.SetNotifyIconVisiable(process, false);
+                                if (Config.Mute)
+                                {
+                                    SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_MUTE * 0x10000);
+                                    for (var i = 0; i < 50; i++)
+                                    {
+                                        SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_DOWN * 0x10000);
+                                    }
+                                }
+                                if (Config.OpenFile)
+                                {
+                                    Process.Start(Config.OpenFilePath);
+                                }
+
+                                isshow = false;
+                            }
+                        }
+                        await Task.Delay(1000);
+                    }
+                }, token).Start();
+
+
+
+
+                new Task(async () =>
+                {
+                    List<int> _process_id = new List<int>();
+                    while (true)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        if (Config.ScanPorcess && !isshow)
+                        {
+
+                            _process_id.Clear();
+                            for (var i = 0; i < process.Count; i++)
+                            {
+                                var pname = process[i];
+                                pname = pname.Substring(pname.LastIndexOf('\\') + 1);
+                                pname = pname.Substring(0, pname.LastIndexOf("."));
+                                Process[] ps = Process.GetProcessesByName(pname);
+                                foreach (var p in ps)
+                                {
+                                    try
+                                    {
+                                        if (p.MainModule.FileName == process[i]) _process_id.Add(p.Id);
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+                            }
+                            foreach (var id in _process_id)
+                            {
+                                EnumWindows(EnumWindowCallBack, id);
+                            }
+
+                            foreach (var h in phandle)
+                            {
+                                ShowWindow(h, 0);
+                            }
+                            NotifyIconHide.SetNotifyIconVisiable(process, false);
+                        }
+                        await Task.Delay(Config.ScanProcessInterval);
+                    }
+
+                }, token).Start();
+
 
                 AutoHide = AutoStart && Config.AutoHide;//自动启动且自动隐藏
 
@@ -541,7 +710,130 @@ namespace BossKey
                 }
                 RegisterShortcutKeyConfig();
             }
+            if (hook == null)
+            {
+                hook = new GlobalHook();
+                if (Config.EnableHook)
+                {
+                    hook.KeyDown += Hook_KeyDown;
+                }
+                //hook.KeyDown += new KeyEventHandler(hook_KeyDown);
+                //hook.KeyPress += new KeyPressEventHandler(hook_KeyPress);
+                //hook.KeyUp += new KeyEventHandler(hook_KeyUp);
+                hook.OnMouseActivity += Hook_OnMouseActivity;
+            }
+            if (!hook.Start())
+            {
+                MessageBox.Show("您需要管理员权限方能启动鼠标快捷键！", "提示");
+            }
+
+
+
             GetALLProcesses();
+
+        }
+
+        bool CheckKeys(string Keys, KeyEventArgs e)
+        {
+            bool result = true;
+
+
+
+            if (Keys.IndexOf("Alt") != -1) result = result && e.Alt;
+            if (Keys.IndexOf("Ctrl") != -1) result = result && e.Control;
+            if (Keys.IndexOf("Shift") != -1) result = result && e.Shift;
+            Keys = Keys.Replace("Alt", "").Replace("Ctrl", "").Replace("Shift", "").Replace(" ", "").Replace("+", "");
+
+            result = result && e.KeyCode == (Keys)Enum.Parse(typeof(Keys), Keys);
+
+
+            return result;
+        }
+
+
+        private void Hook_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (CheckKeys(Config.ShortcutKey_Boss, e))
+            {
+                if (Config.ShortcutKey_App == Config.ShortcutKey_Boss)
+                {
+                    if (this.Visible)
+                    {
+                        this.Hide();
+                        this.notifyIcon1.Visible = false;
+                    }
+                    else
+                    {
+                        if (Config.EnablePassword)
+                        {
+                            var _show = false;
+                            PasswordForm pf = new PasswordForm();
+                            if (pf.ShowDialog() == DialogResult.OK)
+                            {
+                                if (Password.encrypt(pf.Result) != Config.Password)
+                                {
+                                    MessageBox.Show(this, "密码不正确！");
+                                }
+                                else
+                                {
+                                    _show = true;
+                                }
+                            }
+                            if (!_show) return;
+                        }
+                        this.Show();
+                        this.Activate();
+                        this.notifyIcon1.Visible = true;
+                        if (!ShowInTaskbar)
+                        {
+                            //UnRegisterShortcutKeyConfig();
+                            this.ShowInTaskbar = true;
+                            //RegisterShortcutKeyConfig();
+                        }
+                    }
+                }
+                btn_hiden_Click(null, null);
+            }
+            if (Config.ShortcutKey_App != Config.ShortcutKey_Boss && CheckKeys(Config.ShortcutKey_App, e))
+            {
+
+                if (this.Visible)
+                {
+                    this.Hide();
+                    this.notifyIcon1.Visible = false;
+                }
+                else
+                {
+
+                    if (Config.EnablePassword)
+                    {
+                        var _show = false;
+                        PasswordForm pf = new PasswordForm();
+                        if (pf.ShowDialog() == DialogResult.OK)
+                        {
+                            if (Password.encrypt(pf.Result) != Config.Password)
+                            {
+                                MessageBox.Show(this, "密码不正确！");
+                            }
+                            else
+                            {
+                                _show = true;
+                            }
+                        }
+                        if (!_show) return;
+                    }
+                    this.Show();
+                    this.Activate();
+                    this.notifyIcon1.Visible = true;
+                    if (!ShowInTaskbar)
+                    {
+                        //UnRegisterShortcutKeyConfig();
+                        this.ShowInTaskbar = true;
+                        //RegisterShortcutKeyConfig();
+                    }
+                }
+
+            }
 
         }
 
@@ -558,6 +850,23 @@ namespace BossKey
                     }
                     else
                     {
+                        if (Config.EnablePassword)
+                        {
+                            var _show = false;
+                            PasswordForm pf = new PasswordForm();
+                            if (pf.ShowDialog() == DialogResult.OK)
+                            {
+                                if (Password.encrypt(pf.Result) != Config.Password)
+                                {
+                                    MessageBox.Show(this, "密码不正确！");
+                                }
+                                else
+                                {
+                                    _show = true;
+                                }
+                            }
+                            if (!_show) return;
+                        }
                         this.Show();
                         this.Activate();
                         this.notifyIcon1.Visible = true;
@@ -581,6 +890,23 @@ namespace BossKey
                 }
                 else
                 {
+                    if (Config.EnablePassword)
+                    {
+                        var _show = false;
+                        PasswordForm pf = new PasswordForm();
+                        if (pf.ShowDialog() == DialogResult.OK)
+                        {
+                            if (Password.encrypt(pf.Result) != Config.Password)
+                            {
+                                MessageBox.Show(this, "密码不正确！");
+                            }
+                            else
+                            {
+                                _show = true;
+                            }
+                        }
+                        if (!_show) return;
+                    }
                     this.Show();
                     this.Activate();
                     this.notifyIcon1.Visible = true;
@@ -602,7 +928,11 @@ namespace BossKey
                 btn_hiden_Click(null, null);
             }
             hook.Stop();
+
             UnRegisterShortcutKeyConfig();
+            tokenSource.Cancel();
+
+
         }
 
         private void menu_exit_Click(object sender, EventArgs e)
@@ -691,6 +1021,100 @@ namespace BossKey
             if (e.Button == MouseButtons.Middle)
             {
                 obj.Text = $"Mouse{e.Button.ToString()}";
+            }
+        }
+
+        private void btn_selfile_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txt_filepath.Text = openFileDialog1.FileName;
+            }
+        }
+
+
+        bool password_change = false;
+
+        private void cb_password_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!password_change)
+            {
+
+                var ret = false;
+                if (cb_password.Checked)
+                {
+                    var pass_1 = "";
+                    var pass_2 = "";
+
+                    PasswordForm pf_1 = new PasswordForm();
+                    if (pf_1.ShowDialog() == DialogResult.OK)
+                    {
+                        pass_1 = pf_1.Result;
+
+                        PasswordForm pf_2 = new PasswordForm();
+                        pf_2.Text = "请再次输入密码";
+                        if (pf_2.ShowDialog() == DialogResult.OK)
+                        {
+                            pass_2 = pf_2.Result;
+                            if (pass_1 != pass_2)
+                            {
+                                MessageBox.Show(this, "两次密码输入不一致！");
+                            }
+                            else
+                            {
+                                Config.Password = Password.encrypt(pass_1);
+                                ret = true;
+                            }
+                        }
+                    }
+
+                    if (cb_password.Checked != ret)
+                    {
+                        if (ret) password_change = true;
+                        cb_password.Checked = ret;
+                    }
+
+                }
+                else
+                {
+                    PasswordForm pf_1 = new PasswordForm();
+                    if (pf_1.ShowDialog() == DialogResult.OK)
+                    {
+                        if (Config.Password != Password.encrypt(pf_1.Result))
+                        {
+                            MessageBox.Show(this, "密码不正确！");
+                        }
+                        else
+                        {
+                            ret = true;
+                        }
+                    }
+
+                    if (cb_password.Checked == ret)
+                    {
+                        if (!ret) password_change = true;
+                        cb_password.Checked = !ret;
+                    }
+
+
+
+                }
+            }
+            else
+            {
+                password_change = false;
+            }
+        }
+
+        private void cb_openfile_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cb_openfile.Checked)
+            {
+                if (txt_filepath.Text == string.Empty)
+                {
+                    MessageBox.Show(this, "文件不能为空！");
+                    cb_openfile.Checked = false;
+                }
             }
         }
     }
