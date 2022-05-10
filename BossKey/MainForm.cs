@@ -200,8 +200,12 @@ namespace BossKey
         List<IntPtr> phandle = new List<IntPtr>();
         bool isshow = true;
 
+        /// <summary>
+        /// 是否在加载状态
+        /// </summary>
+        bool isload = true;
 
-
+        PasswordForm pf = new PasswordForm();
 
         CancellationTokenSource tokenSource;
         CancellationToken token;
@@ -244,7 +248,7 @@ namespace BossKey
                     NotifyIconHide.SetNotifyIconVisiable(process, false);
                     if (Config.Mute)
                     {
-                        SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_MUTE * 0x10000);
+                        //SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_MUTE * 0x10000);
                         for (var i = 0; i < 50; i++)
                         {
                             SendMessage(this.Handle, WM_APPCOMMAND, 0x200eb0, APPCOMMAND_VOLUME_DOWN * 0x10000);
@@ -256,10 +260,6 @@ namespace BossKey
                     }
 
                     isshow = false;
-
-
-
-
                 }
                 else
                 {
@@ -437,7 +437,7 @@ namespace BossKey
                         case BaseValue:
                             if (Config.ShortcutKey_App == Config.ShortcutKey_Boss)
                             {
-                                if (this.Visible)
+                                if (/*this.Visible*/isshow)
                                 {
                                     this.Hide();
                                     this.notifyIcon1.Visible = false;
@@ -447,8 +447,8 @@ namespace BossKey
                                     if (Config.EnablePassword)
                                     {
                                         var _show = false;
-                                        PasswordForm pf = new PasswordForm();
-                                        if (pf.ShowDialog() == DialogResult.OK)
+                                        ////PasswordForm pf = new PasswordForm();
+                                        if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                                         {
                                             if (Password.encrypt(pf.Result) != Config.Password)
                                             {
@@ -475,7 +475,7 @@ namespace BossKey
                             btn_hiden_Click(null, null);
                             break;
                         case BaseValue + 1:
-                            if (this.Visible)
+                            if (/*this.Visible*/isshow)
                             {
                                 this.Hide();
                                 this.notifyIcon1.Visible = false;
@@ -485,8 +485,8 @@ namespace BossKey
                                 if (Config.EnablePassword)
                                 {
                                     var _show = false;
-                                    PasswordForm pf = new PasswordForm();
-                                    if (pf.ShowDialog() == DialogResult.OK)
+                                    //PasswordForm pf = new PasswordForm();
+                                    if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                                     {
                                         if (Password.encrypt(pf.Result) != Config.Password)
                                         {
@@ -546,6 +546,10 @@ namespace BossKey
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+
+            llab_version.Text = $"V {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+
+
             Password.cpuid = Password.GetCpuID();
             Config.AppPaths = new List<string>();
             if (File.Exists(Application.StartupPath + "\\BossKey.config"))
@@ -553,6 +557,32 @@ namespace BossKey
                 XmlDocument Xml = new XmlDocument();
                 Xml.Load(Application.StartupPath + "\\BossKey.config");
                 Config = (SystemConfig)XmlUtil.Deserialize(typeof(SystemConfig), Xml.InnerXml);
+
+
+                if (Config.EnablePassword)
+                {
+
+                    var _show = false;
+                    //PasswordForm pf = new PasswordForm();
+                    if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
+                    {
+                        if (Password.encrypt(pf.Result) != Config.Password)
+                        {
+                            MessageBox.Show(this, "密码不正确！");
+                        }
+                        else
+                        {
+                            _show = true;
+                        }
+                    }
+                    if (!_show)
+                    {
+                        Application.Exit();
+                        return;
+                    }
+
+
+                }
                 txt_appkey.Text = Config.ShortcutKey_App;
                 txt_bosskey.Text = Config.ShortcutKey_Boss;
                 _shortcutkey_app = Config.ShortcutKey_App;
@@ -573,6 +603,12 @@ namespace BossKey
 
                 cb_idlehiden.Checked = Config.IdleHiden;
                 nud_idletime.Value = Config.IdleTime == 0 ? 60 : Config.IdleTime;
+
+
+
+
+
+
 
                 new Task(async () =>
                 {
@@ -730,7 +766,8 @@ namespace BossKey
 
 
             GetALLProcesses();
-
+            isload = false;
+            this.Opacity=100;
         }
 
         bool CheckKeys(string Keys, KeyEventArgs e)
@@ -757,7 +794,7 @@ namespace BossKey
             {
                 if (Config.ShortcutKey_App == Config.ShortcutKey_Boss)
                 {
-                    if (this.Visible)
+                    if (/*this.Visible*/isshow)
                     {
                         this.Hide();
                         this.notifyIcon1.Visible = false;
@@ -767,8 +804,8 @@ namespace BossKey
                         if (Config.EnablePassword)
                         {
                             var _show = false;
-                            PasswordForm pf = new PasswordForm();
-                            if (pf.ShowDialog() == DialogResult.OK)
+                            //PasswordForm pf = new PasswordForm();
+                            if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                             {
                                 if (Password.encrypt(pf.Result) != Config.Password)
                                 {
@@ -797,7 +834,7 @@ namespace BossKey
             if (Config.ShortcutKey_App != Config.ShortcutKey_Boss && CheckKeys(Config.ShortcutKey_App, e))
             {
 
-                if (this.Visible)
+                if (/*this.Visible*/ isshow)
                 {
                     this.Hide();
                     this.notifyIcon1.Visible = false;
@@ -808,8 +845,8 @@ namespace BossKey
                     if (Config.EnablePassword)
                     {
                         var _show = false;
-                        PasswordForm pf = new PasswordForm();
-                        if (pf.ShowDialog() == DialogResult.OK)
+                        //PasswordForm pf = new PasswordForm();
+                        if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                         {
                             if (Password.encrypt(pf.Result) != Config.Password)
                             {
@@ -843,7 +880,7 @@ namespace BossKey
             {
                 if (Config.ShortcutKey_App == Config.ShortcutKey_Boss)
                 {
-                    if (this.Visible)
+                    if (/*this.Visible*/ isshow)
                     {
                         this.Hide();
                         this.notifyIcon1.Visible = false;
@@ -853,8 +890,8 @@ namespace BossKey
                         if (Config.EnablePassword)
                         {
                             var _show = false;
-                            PasswordForm pf = new PasswordForm();
-                            if (pf.ShowDialog() == DialogResult.OK)
+                            //PasswordForm pf = new PasswordForm();
+                            if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                             {
                                 if (Password.encrypt(pf.Result) != Config.Password)
                                 {
@@ -883,7 +920,7 @@ namespace BossKey
             if (Config.ShortcutKey_App != Config.ShortcutKey_Boss && Config.ShortcutKey_App == $"Mouse{e.Button.ToString()}")
             {
 
-                if (this.Visible)
+                if (/*this.Visible*/ isshow)
                 {
                     this.Hide();
                     this.notifyIcon1.Visible = false;
@@ -893,8 +930,8 @@ namespace BossKey
                     if (Config.EnablePassword)
                     {
                         var _show = false;
-                        PasswordForm pf = new PasswordForm();
-                        if (pf.ShowDialog() == DialogResult.OK)
+                        //PasswordForm pf = new PasswordForm();
+                        if (!pf.Visible && pf.ShowDialog() == DialogResult.OK)
                         {
                             if (Password.encrypt(pf.Result) != Config.Password)
                             {
@@ -927,7 +964,7 @@ namespace BossKey
             {
                 btn_hiden_Click(null, null);
             }
-            hook.Stop();
+            if (hook != null) hook.Stop();
 
             UnRegisterShortcutKeyConfig();
             tokenSource.Cancel();
@@ -1037,72 +1074,74 @@ namespace BossKey
 
         private void cb_password_CheckedChanged(object sender, EventArgs e)
         {
-            if (!password_change)
+            if (!isload)
             {
-
-                var ret = false;
-                if (cb_password.Checked)
+                if (!password_change)
                 {
-                    var pass_1 = "";
-                    var pass_2 = "";
-
-                    PasswordForm pf_1 = new PasswordForm();
-                    if (pf_1.ShowDialog() == DialogResult.OK)
+                    var ret = false;
+                    if (cb_password.Checked)
                     {
-                        pass_1 = pf_1.Result;
+                        var pass_1 = "";
+                        var pass_2 = "";
 
-                        PasswordForm pf_2 = new PasswordForm();
-                        pf_2.Text = "请再次输入密码";
-                        if (pf_2.ShowDialog() == DialogResult.OK)
+                        PasswordForm pf_1 = new PasswordForm();
+                        if (pf_1.ShowDialog() == DialogResult.OK)
                         {
-                            pass_2 = pf_2.Result;
-                            if (pass_1 != pass_2)
+                            pass_1 = pf_1.Result;
+
+                            PasswordForm pf_2 = new PasswordForm();
+                            pf_2.Text = "请再次输入密码";
+                            if (pf_2.ShowDialog() == DialogResult.OK)
                             {
-                                MessageBox.Show(this, "两次密码输入不一致！");
+                                pass_2 = pf_2.Result;
+                                if (pass_1 != pass_2)
+                                {
+                                    MessageBox.Show(this, "两次密码输入不一致！");
+                                }
+                                else
+                                {
+                                    Config.Password = Password.encrypt(pass_1);
+                                    ret = true;
+                                }
+                            }
+                        }
+
+                        if (cb_password.Checked != ret)
+                        {
+                            if (ret) password_change = true;
+                            cb_password.Checked = ret;
+                        }
+
+                    }
+                    else
+                    {
+                        PasswordForm pf_1 = new PasswordForm();
+                        if (pf_1.ShowDialog() == DialogResult.OK)
+                        {
+                            if (Config.Password != Password.encrypt(pf_1.Result))
+                            {
+                                MessageBox.Show(this, "密码不正确！");
                             }
                             else
                             {
-                                Config.Password = Password.encrypt(pass_1);
                                 ret = true;
                             }
                         }
-                    }
 
-                    if (cb_password.Checked != ret)
-                    {
-                        if (ret) password_change = true;
-                        cb_password.Checked = ret;
-                    }
+                        if (cb_password.Checked == ret)
+                        {
+                            if (!ret) password_change = true;
+                            cb_password.Checked = !ret;
+                        }
 
+
+
+                    }
                 }
                 else
                 {
-                    PasswordForm pf_1 = new PasswordForm();
-                    if (pf_1.ShowDialog() == DialogResult.OK)
-                    {
-                        if (Config.Password != Password.encrypt(pf_1.Result))
-                        {
-                            MessageBox.Show(this, "密码不正确！");
-                        }
-                        else
-                        {
-                            ret = true;
-                        }
-                    }
-
-                    if (cb_password.Checked == ret)
-                    {
-                        if (!ret) password_change = true;
-                        cb_password.Checked = !ret;
-                    }
-
-
-
+                    password_change = false;
                 }
-            }
-            else
-            {
-                password_change = false;
             }
         }
 
@@ -1116,6 +1155,11 @@ namespace BossKey
                     cb_openfile.Checked = false;
                 }
             }
+        }
+
+        private void llab_version_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("https://www.52pojie.cn/thread-1582026-1-1.html");
         }
     }
 

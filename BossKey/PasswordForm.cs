@@ -35,5 +35,10 @@ namespace BossKey
             DialogResult = DialogResult.OK;
             Close();
         }
+
+        private void PasswordForm_Shown(object sender, EventArgs e)
+        {
+            txt_password.Text = "";
+        }
     }
 }

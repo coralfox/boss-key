@@ -43,6 +43,8 @@
             this.cb_openfile = new System.Windows.Forms.CheckBox();
             this.cb_mute = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.nud_idletime = new System.Windows.Forms.NumericUpDown();
+            this.cb_idlehiden = new System.Windows.Forms.CheckBox();
             this.nud_scanprocess_interval = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.cb_scanprocess = new System.Windows.Forms.CheckBox();
@@ -65,16 +67,15 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.menu_exit = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.cb_idlehiden = new System.Windows.Forms.CheckBox();
-            this.nud_idletime = new System.Windows.Forms.NumericUpDown();
+            this.llab_version = new System.Windows.Forms.LinkLabel();
             this.panel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_idletime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_scanprocess_interval)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_idletime)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -120,6 +121,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.llab_version);
             this.panel1.Controls.Add(this.groupBox4);
             this.panel1.Controls.Add(this.groupBox3);
             this.panel1.Controls.Add(this.cb_autohide);
@@ -159,45 +161,45 @@
             this.cb_hook.Location = new System.Drawing.Point(120, 16);
             this.cb_hook.Name = "cb_hook";
             this.cb_hook.Size = new System.Drawing.Size(72, 16);
-            this.cb_hook.TabIndex = 10;
+            this.cb_hook.TabIndex = 1;
             this.cb_hook.Text = "启用HOOK";
             this.cb_hook.UseVisualStyleBackColor = true;
             // 
             // cb_password
             // 
             this.cb_password.AutoSize = true;
-            this.cb_password.Location = new System.Drawing.Point(6, 58);
+            this.cb_password.Location = new System.Drawing.Point(6, 37);
             this.cb_password.Name = "cb_password";
             this.cb_password.Size = new System.Drawing.Size(108, 16);
-            this.cb_password.TabIndex = 9;
-            this.cb_password.Text = "显示时启用密码";
+            this.cb_password.TabIndex = 2;
+            this.cb_password.Text = "显示时启用密码\r\n";
             this.cb_password.UseVisualStyleBackColor = true;
             this.cb_password.CheckedChanged += new System.EventHandler(this.cb_password_CheckedChanged);
             // 
             // btn_selfile
             // 
-            this.btn_selfile.Location = new System.Drawing.Point(241, 34);
+            this.btn_selfile.Location = new System.Drawing.Point(241, 56);
             this.btn_selfile.Name = "btn_selfile";
             this.btn_selfile.Size = new System.Drawing.Size(33, 23);
-            this.btn_selfile.TabIndex = 8;
+            this.btn_selfile.TabIndex = 5;
             this.btn_selfile.Text = "...";
             this.btn_selfile.UseVisualStyleBackColor = true;
             this.btn_selfile.Click += new System.EventHandler(this.btn_selfile_Click);
             // 
             // txt_filepath
             // 
-            this.txt_filepath.Location = new System.Drawing.Point(120, 36);
+            this.txt_filepath.Location = new System.Drawing.Point(120, 56);
             this.txt_filepath.Name = "txt_filepath";
             this.txt_filepath.Size = new System.Drawing.Size(115, 21);
-            this.txt_filepath.TabIndex = 7;
+            this.txt_filepath.TabIndex = 4;
             // 
             // cb_openfile
             // 
             this.cb_openfile.AutoSize = true;
-            this.cb_openfile.Location = new System.Drawing.Point(6, 36);
+            this.cb_openfile.Location = new System.Drawing.Point(6, 59);
             this.cb_openfile.Name = "cb_openfile";
             this.cb_openfile.Size = new System.Drawing.Size(108, 16);
-            this.cb_openfile.TabIndex = 6;
+            this.cb_openfile.TabIndex = 3;
             this.cb_openfile.Text = "隐藏时打开文件";
             this.cb_openfile.UseVisualStyleBackColor = true;
             this.cb_openfile.CheckedChanged += new System.EventHandler(this.cb_openfile_CheckedChanged);
@@ -208,7 +210,7 @@
             this.cb_mute.Location = new System.Drawing.Point(6, 16);
             this.cb_mute.Name = "cb_mute";
             this.cb_mute.Size = new System.Drawing.Size(84, 16);
-            this.cb_mute.TabIndex = 5;
+            this.cb_mute.TabIndex = 0;
             this.cb_mute.Text = "隐藏时静音";
             this.cb_mute.UseVisualStyleBackColor = true;
             // 
@@ -225,6 +227,38 @@
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "自动隐藏";
+            // 
+            // nud_idletime
+            // 
+            this.nud_idletime.Location = new System.Drawing.Point(171, 57);
+            this.nud_idletime.Maximum = new decimal(new int[] {
+            3600000,
+            0,
+            0,
+            0});
+            this.nud_idletime.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nud_idletime.Name = "nud_idletime";
+            this.nud_idletime.Size = new System.Drawing.Size(75, 21);
+            this.nud_idletime.TabIndex = 4;
+            this.nud_idletime.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            // 
+            // cb_idlehiden
+            // 
+            this.cb_idlehiden.AutoSize = true;
+            this.cb_idlehiden.Location = new System.Drawing.Point(6, 59);
+            this.cb_idlehiden.Name = "cb_idlehiden";
+            this.cb_idlehiden.Size = new System.Drawing.Size(156, 16);
+            this.cb_idlehiden.TabIndex = 3;
+            this.cb_idlehiden.Text = "系统空闲自动隐藏（秒）";
+            this.cb_idlehiden.UseVisualStyleBackColor = true;
             // 
             // nud_scanprocess_interval
             // 
@@ -430,37 +464,14 @@
             this.menu_exit.Text = "退出";
             this.menu_exit.Click += new System.EventHandler(this.menu_exit_Click);
             // 
-            // cb_idlehiden
+            // llab_version
             // 
-            this.cb_idlehiden.AutoSize = true;
-            this.cb_idlehiden.Location = new System.Drawing.Point(6, 59);
-            this.cb_idlehiden.Name = "cb_idlehiden";
-            this.cb_idlehiden.Size = new System.Drawing.Size(156, 16);
-            this.cb_idlehiden.TabIndex = 3;
-            this.cb_idlehiden.Text = "系统空闲自动隐藏（秒）";
-            this.cb_idlehiden.UseVisualStyleBackColor = true;
-            // 
-            // nud_idletime
-            // 
-            this.nud_idletime.Location = new System.Drawing.Point(171, 57);
-            this.nud_idletime.Maximum = new decimal(new int[] {
-            3600000,
-            0,
-            0,
-            0});
-            this.nud_idletime.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nud_idletime.Name = "nud_idletime";
-            this.nud_idletime.Size = new System.Drawing.Size(75, 21);
-            this.nud_idletime.TabIndex = 4;
-            this.nud_idletime.Value = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
+            this.llab_version.AutoSize = true;
+            this.llab_version.Location = new System.Drawing.Point(12, 85);
+            this.llab_version.Name = "llab_version";
+            this.llab_version.Size = new System.Drawing.Size(0, 12);
+            this.llab_version.TabIndex = 10;
+            this.llab_version.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llab_version_LinkClicked);
             // 
             // MainForm
             // 
@@ -470,6 +481,7 @@
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
+            this.Opacity = 0D;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "老板来了[吾爱破解]";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -481,12 +493,12 @@
             this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_idletime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_scanprocess_interval)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.nud_idletime)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -529,6 +541,7 @@
         private System.Windows.Forms.CheckBox cb_hook;
         private System.Windows.Forms.NumericUpDown nud_idletime;
         private System.Windows.Forms.CheckBox cb_idlehiden;
+        private System.Windows.Forms.LinkLabel llab_version;
     }
 }
 

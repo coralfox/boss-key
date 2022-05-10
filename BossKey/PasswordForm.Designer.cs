@@ -74,9 +74,11 @@ namespace BossKey
             this.Name = "PasswordForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "请输入密码";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.PasswordForm_Load);
+            this.Shown += new System.EventHandler(this.PasswordForm_Shown);
             this.ResumeLayout(false);
             this.PerformLayout();
 
